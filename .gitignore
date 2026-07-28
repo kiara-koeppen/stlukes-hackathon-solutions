@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS
+.DS_Store
+
+# Local scratch
+scratch/
+*.tmp
