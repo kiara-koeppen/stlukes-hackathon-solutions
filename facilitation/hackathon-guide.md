@@ -83,6 +83,11 @@ ready as talking points.
 Each full blueprint has a **Section 9: Facilitation notes** with the specific "aha" to steer toward
 and where teams get stuck. Skim all five before Day 1. Quick version:
 
+**Tested TA guides (new):** `facilitation/ta-guides/<uc>-ta-guide.md` hold a built-and-
+verified reference solution, a Genie Code prompt playbook, tiered hints (L1-L4), and expected
+numbers for each use case, all built and run in `kk_test`. Pull the matching guide up while floating;
+if a team stalls, you have a working solution and known-good Genie Code prompts to hand them.
+
 - **#1 CKD (G3):** the aha is finding lab-evidence-of-CKD patients with NO N18.x code (the care gap).
   Steer them to rules-first (KDIGO staging in SQL), then `ai_extract` on notes. Watch for them
   overreaching into a full clinical model, keep it to flagging for review.
