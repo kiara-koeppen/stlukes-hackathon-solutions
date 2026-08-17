@@ -3,7 +3,7 @@
 **Private. Facilitator-only. Do not share with St. Luke's.**
 
 This repo is Kiara's internal playbook for the St. Luke's Health System (SLHS) AI Hackathon
-(Aug 19–20, 2026, Boise ID). It contains the full solution architecture for each candidate use
+(Sept 16–17, 2026, Boise ID). It contains the full solution architecture for each candidate use
 case: which Databricks features do what, and how they chain together into a production-ready
 solution. The point is to walk into the hackathon knowing exactly what "good" looks like for
 every use case so I can guide teams without building it for them.
@@ -66,8 +66,8 @@ stlukes-hackathon-solutions/
    "we can ship this in N days."
 3. **Azure, West 2, Epic-centric.** SLHS is Azure PAYG→Commit, migrating off Health Catalyst by
    Sept 2027. Microsoft Fabric is the real competitive risk. Blueprints lean into what Databricks
-   does that Fabric/Copilot can't (governed Genie on real tables, Agent Bricks, MLflow eval, UC
-   lineage/audit).
+   does that Fabric/Copilot can't (governed Genie Agents on real tables, Unity AI Gateway governing
+   every model call, MLflow eval, UC lineage/audit).
 
 ## Open items to confirm with Yutong on the prep call
 

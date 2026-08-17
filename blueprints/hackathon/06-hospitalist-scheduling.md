@@ -34,7 +34,7 @@ The target experience: the scheduler acts as a **reviewer and communicator**, no
                                                 │ draft assignments +          │                            │
                                                 │ per-provider "why" facts     │  ┌──────────────────────┐  │
                                                 ▼                              │  │ LLM agent (Model      │  │
-                                ┌──────────────────────────────────────┐      │  │ Serving / Agent Bricks│  │
+                                ┌──────────────────────────────────────┐      │  │ Serving / custom agent│  │
                                 │  EXPLANATION + WHAT-IF AGENT          │◄────►│  │ "why nights?" /       │  │
                                 │  narrates changes, answers "why",     │      │  │ "give Dr. X the 14th  │  │
                                 │  triggers a scoped re-solve on request│      │  │ off" → re-solve       │  │
@@ -93,7 +93,7 @@ The target experience: the scheduler acts as a **reviewer and communicator**, no
 1. **Narration / "why" answers.** When the scheduler asks "why is Dr. Okafor on nights three blocks running?", the agent reads the structured facts the solver emitted (this provider's night-preference weight, the equity balance, who else was credentialed and available) and answers in plain language with the actual drivers, grounded in solver output, never invented.
 2. **What-if re-solve.** When the scheduler says "give Dr. Patel the 14th off" or "Dr. Lee called out tonight," the agent translates the request into a constraint change (pin/forbid a variable, add a PTO block), triggers a **scoped re-solve** of just the affected window, and reports back what moved and what it cost ("done, the 14th is now covered by Dr. Reyes, who was your next-fairest option; her weekend count goes from 2 to 3").
 
-**Which feature:** custom agent (ResponsesAgent/ChatAgent) on **Model Serving**, or an **Agent Bricks** setup where a Genie Space over the gold + draft tables answers the data-lookup "why" questions and a custom tool wraps the solver re-solve. The agent calls the solver as a **tool**; it does not do the optimization itself.
+**Which feature:** custom agent (ResponsesAgent/ChatAgent) on **Model Serving**, or a **composable agent** setup where a Genie Agent over the gold + draft tables answers the data-lookup "why" questions and a custom tool wraps the solver re-solve. The agent calls the solver as a **tool**; it does not do the optimization itself.
 
 **Why this division of labor:** this is the heart of Pattern F. **The optimizer does the math; the agent does the communication; the human decides.** The LLM is superb at turning solver facts into a sentence a physician will accept and at parsing a messy natural-language change request into a formal constraint edit, and it is categorically unfit to *produce* the schedule. Keeping those roles separate is what makes the system both trustworthy and useful, and it is the direct answer to why Copilot failed: Copilot tried to make the language model do the optimization.
 
@@ -145,7 +145,7 @@ All synthetic source tables live in `hackathon.shared.sched_*` (read-only to all
 - A CP-SAT (or PuLP) model with a **meaningful subset** of constraints: coverage minimums + credentialing + max-consecutive + PTO-hard as the hard set; preference weight + night/weekend equity as the soft objective. Solve one 28-day block.
 - Write `sched_draft_assignments` and a `sched_solver_run` row.
 - A minimal explanation layer: even a single `ai_query` call that turns the solver's per-provider factors into a plain-language "why" paragraph counts. Bonus: wire one what-if ("give provider X day D off") that re-solves.
-- A thin front end: a Databricks App **or** even a notebook dashboard / Genie Space over the draft table showing the calendar, coverage fill, and equity spread.
+- A thin front end: a Databricks App **or** even a notebook dashboard / Genie Agent over the draft table showing the calendar, coverage fill, and equity spread.
 
 **Scope OUT (don't drown):**
 - Full Lightning Bolt round-trip / write-back integration: read the synthetic export, don't build the connector.

@@ -35,7 +35,7 @@ A St. Luke's physician manually reviews large patient populations to find people
                     evidence_json, care_gap_flag, risk_tier)
                        │                       │                        │
         Pattern D ─────┘        Pattern I ─────┘           Pattern J ────┘
-     Genie Space for          Databricks App              MLflow genai.evaluate:
+     Genie Agent for          Databricks App              MLflow genai.evaluate:
      clinician exploration    review worklist             suggested vs gold-label
      ("show me G4 gaps")      (confirm / dismiss)         (accuracy, safety)
 ```
@@ -54,8 +54,8 @@ What happens: for the subset of patients whose structured labs are ambiguous or 
 **Stage 4: Gold "CKD candidate" table.**
 What happens: assemble `gold.ckd_candidates`, one row per flagged patient, carrying `suggested_stage`, `suggested_albuminuria`, `confidence` (derived from how many criteria agree, lab recency, and whether the note corroborates), `evidence_json` (the specific eGFR values, dates, UACR, and any extracted note snippet that drove the suggestion), `care_gap_flag`, and a `risk_tier` (for example, G4/G5 or rapid eGFR decline = high). Which feature: a gold **materialized view / Delta table** in the group's schema. Why: this is the contract every downstream consumer (Genie, the App, the eval) reads from. Evidence travels with the suggestion so the clinician never sees a naked stage label.
 
-**Stage 5: Genie Space for clinician exploration (Pattern D).**
-What happens: a **Genie Space** over the gold schema (plus a Metric View for governed counts like "care-gap patients by suggested stage") lets a clinician or population-health analyst ask natural-language questions: "How many patients look like G4 but have no CKD diagnosis?", "Show me the care-gap patients seen in the last 90 days." Which feature: **Pattern D, Agent Bricks Genie Space** with curated instructions and sample SQL, embeddable via Genie Code. Why this vs. alternatives: Genie answers over *governed* UC tables with lineage and row/column security, not a black box, which is the headline differentiator versus a Copilot/Fabric answer of unknown provenance.
+**Stage 5: Genie Agent for clinician exploration (Pattern D).**
+What happens: a **Genie Agent** over the gold schema (plus a Metric View for governed counts like "care-gap patients by suggested stage") lets a clinician or population-health analyst ask natural-language questions: "How many patients look like G4 but have no CKD diagnosis?", "Show me the care-gap patients seen in the last 90 days." Which feature: **Pattern D, a Genie Agent** with curated instructions and sample SQL, embeddable via Genie Code. Why this vs. alternatives: Genie answers over *governed* UC tables with lineage and row/column security, not a black box, which is the headline differentiator versus a Copilot/Fabric answer of unknown provenance.
 
 **Stage 6: Databricks App review worklist (Pattern I).**
 What happens: a **Databricks App** (React/FastAPI) renders the ranked worklist. Each row shows the patient, the suggested stage, the confidence, and the expandable evidence; the clinician clicks **Confirm** (accept the suggestion), **Adjust** (change the stage), or **Dismiss** (not CKD / already handled), and the decision is written back to a review table. Which feature: **Pattern I, Databricks App + Model Serving**, with **OBO (on-behalf-of) auth** so the app respects each clinician's UC permissions (never make the app service principal an admin). Lakebase holds the review/decision state. Why: this is the POC→prod step, it turns a gold table into something a physician actually works through, and it is the human decision point that keeps the system as clinical decision *support*, never autonomous diagnosis.
@@ -102,17 +102,17 @@ This is a clinical-decision-support, PHI-sensitive use case, so the guardrails f
 - Write the KDIGO SQL rules engine: the 2+ eGFR<60-over-90-days chronicity check, G-stage mapping, and the N18.x care-gap left-join. **Getting the care-gap list is the win.**
 - Produce `gold.ckd_candidates` with suggested stage, a simple confidence heuristic, and `evidence_json`.
 - One AI touch: `ai_extract`/`ai_query` over `clinical_notes` for the ambiguous subset (Stage 3) to show the SQL-rules + AI-enrichment split.
-- Either a Genie Space (Pattern D) **or** a thin Databricks App worklist (Pattern I), whichever the team is faster at, to make it explorable.
+- Either a Genie Agent (Pattern D) **or** a thin Databricks App worklist (Pattern I), whichever the team is faster at, to make it explorable.
 
 **Scope OUT (coach them away from these):**
-- A polished, fully styled App with write-back workflow, auth roles, and Lakebase state, unless they are moving fast. A read-only worklist or a Genie Space is enough to tell the story.
+- A polished, fully styled App with write-back workflow, auth roles, and Lakebase state, unless they are moving fast. A read-only worklist or a Genie Agent is enough to tell the story.
 - A trained ML staging model. KDIGO is a rule, not a learned model; resist the urge to "ML-ify" it.
 - Full MLflow eval harness (Pattern J). Frame it as the "how we'd prove it" slide unless they have time; a single spot-check of suggested vs `_true_ckd_stage` is enough to gesture at it.
 - UACR/albuminuria staging can be a stretch goal; the eGFR care gap alone is a complete story.
 
 ## 7. Path to production
 
-- **Package as a DAB.** Move the pipeline, gold tables, Genie Space, App, and eval job into a Databricks Asset Bundle for one-command deploy across dev/prod.
+- **Package as a DAB.** Move the pipeline, gold tables, Genie Agent, App, and eval job into a Databricks Asset Bundle for one-command deploy across dev/prod.
 - **Real-data cutover.** Swap the synthetic sources for governed Epic Clarity/Caboodle tables behind a BAA; the medallion and rules engine are unchanged because they were designed against the real shapes. Drop the `_true_ckd_stage` column; the clinician's confirmed stage becomes the label.
 - **Eval gate.** Pattern J becomes a CI gate: the suggested-vs-confirmed accuracy and the safety scorers must clear a threshold before a pipeline version ships. Nephrology SME feedback aligns the LLM judges.
 - **Monitoring.** Schedule the pipeline as a Lakeflow Job (nightly), monitor via UC system tables and MLflow production traces, and track the operational metric that matters: care-gap patients surfaced, reviewed, and resolved per week.

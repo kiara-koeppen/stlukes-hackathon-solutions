@@ -79,11 +79,21 @@ Data & compute: Unity Catalog, Delta, Lakeflow Declarative Pipelines (SDP/DLT), 
 Databricks SQL, Serverless.
 AI functions in SQL: `ai_query`, `ai_extract`, `ai_classify`, `ai_parse_document`, `ai_summarize`,
 `ai_forecast`, `ai_similarity`, `ai_mask`.
-Agent tier: **Agent Bricks** (Knowledge Assistant, Genie Space, Multi-Agent Supervisor), custom
-agents (ResponsesAgent/ChatAgent) on Model Serving, Foundation Model API.
+Genie family: **Genie Agents** (governed NL analytics, fka Genie Spaces; "Analyze Files in Volumes"
+is Beta), **Genie One** (unified business/exec front door), **Genie Code** (the AI build assistant
+teams use to develop pipelines, semantic layers, and agents).
+Agent tier: **composable custom agents** (ResponsesAgent/ChatAgent) on **Model Serving** / Databricks
+Apps, orchestrating Genie Agents + retrieval + tools (MCP), Foundation Model API.
 Retrieval: Vector Search (RAG over unstructured content).
 ML: MLflow (tracking, models, **GenAI evaluation** + LLM-judge scorers), AutoML/forecasting.
-Serving & apps: Model Serving, **Databricks Apps** (React/FastAPI front ends), Genie Code.
-Governance/ops: UC lineage, system tables (audit/billing), Lakeflow Jobs, DABs for CI/CD.
+Serving & apps: Model Serving, **Databricks Apps** (React/FastAPI front ends).
+Governance/ops: **Unity AI Gateway** (GA - budgets, guardrails, model routing incl. Smart Routing
+[Beta], observability/audit of all AI traffic), UC lineage, system tables (audit/billing), Lakeflow
+Jobs, DABs for CI/CD.
+
+*Facilitator note (not for SLHS): the interactive Agent Bricks pieces (Knowledge Assistant,
+Multi-Agent Supervisor) and the Supervisor API are winding down into the Genie family + composable
+agents. Build on the Genie stack + Unity AI Gateway above; don't tell the customer "Agent Bricks is
+deprecated" (no customer-communicable EOL).*
 
 Each blueprint says explicitly which of these it uses and in what order.

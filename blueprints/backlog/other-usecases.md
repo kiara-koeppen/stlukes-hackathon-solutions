@@ -23,9 +23,9 @@ exploratory, so those two are gated on content/CDS approval more than on enginee
 the current case-manager model feels impersonal and transactional.
 
 This is the archetypal RAG-plus-tools agent. Policy documents (benefits, leave, insurance) get ingested
-via **Pattern B** (`ai_parse_document` -> chunk -> Vector Search -> Agent Bricks Knowledge Assistant)
+via **Pattern B** (`ai_parse_document` -> chunk -> Vector Search -> Genie Agent (Analyze Files in Volumes) or custom RAG agent)
 so the agent answers warmly and cites the actual policy language. Leave status, accrual balances, and
-case state come from a governed **Pattern D** Genie Space over HR tables, and a **Pattern H** Multi-Agent
+case state come from a governed **Pattern D** Genie Agent over HR tables, and a **Pattern H** Multi-Agent
 Supervisor routes between the policy KA and the status Genie plus custom tools (open an HR case when it
 detects complexity, draft an OOO message, propose an Outlook status, generate welcome-back messaging).
 Serve it as a **Pattern I** Databricks App with OBO auth so each employee only sees their own leave
@@ -48,7 +48,7 @@ but case-workflow data may need shaping into queryable tables.
 **Problem:** architecture reviews are manual and rely on tribal knowledge; architects hand-research
 vendors, check for overlap with existing solutions, and prep for governance boards from scratch.
 
-The core is a **Pattern B** RAG agent (Knowledge Assistant) over the internal solution/app catalog plus
+The core is a **Pattern B** RAG agent over the internal solution/app catalog plus
 the corpus of past architecture-review docs and decisions, so an architect can ask "have we evaluated a
 vendor like this before?" and get a grounded, cited answer. Incoming vendor questionnaires and solution
 docs are structured with **Pattern C** (`ai_extract` / `ai_classify`) to pull capabilities, categories,
@@ -77,7 +77,7 @@ onboarding is slow, and knowledge is lost when people leave.
 This is a multimodal **Pattern B** build with an ingest twist. Teams recordings, demo videos, and voice
 notes go through transcription; OneNotes, screenshots, and Epic docs/training PDFs go through
 `ai_parse_document` (which handles images and mixed content). Everything is chunked and embedded into a
-**Vector Search** index, then fronted by an **Agent Bricks Knowledge Assistant** that gives Epic analysts
+**Vector Search** index, then fronted by an **Genie Agent (Analyze Files in Volumes) or custom RAG agent** that gives Epic analysts
 and new hires source-grounded, cited answers. A **Pattern A** medallion layer keeps the raw media,
 transcripts, and derived chunks organized and re-indexable as new recordings arrive. Add **Pattern J**
 eval so answers about build configuration are trustworthy, not hallucinated.
@@ -103,7 +103,7 @@ This is the simplest use case in the backlog to productionize and the strongest 
 It is almost pure **Pattern C**: Auto Loader picks up Word intake forms landing in a volume,
 `ai_parse_document` converts them, and `ai_extract` pulls the key fields (requestor, sponsor, business
 need, systems, estimated effort, priority) into a structured Delta table. From there a **Pattern D**
-Genie Space (or a simple search UI) makes the whole intake backlog queryable and discoverable, replacing
+Genie Agent (or a simple search UI) makes the whole intake backlog queryable and discoverable, replacing
 the copy-paste. No agent orchestration, no clinical governance, no forecasting - just a clean
 parse-extract-structure-query pipeline.
 
@@ -124,11 +124,11 @@ pushed back into SharePoint, or is a Databricks-side view sufficient?
 **Problem:** requesters cannot navigate the complex multi-council approval process (NSRB, AIAC, DRRC,
 SAF, Cyber, HR), causing confusion, redundancy, and delays.
 
-Two halves. A **Pattern B** RAG agent (Knowledge Assistant) over the process documentation and each
+Two halves. A **Pattern B** RAG agent over the process documentation and each
 council's requirements answers "what do I need for the AIAC step and what happens next?" with grounded,
-cited guidance. A **Pattern D** Genie Space over a workflow-state table tracks where a given submission
+cited guidance. A **Pattern D** Genie Agent over a workflow-state table tracks where a given submission
 sits across all councils, so the agent can also answer "where is my request right now?" These combine
-naturally under a **Pattern H** Multi-Agent Supervisor, but the headline is the delivery surface: a
+naturally under a **Pattern H** composable agent, but the headline is the delivery surface: a
 **Pattern I** Databricks App that renders a visual journey map with milestones and timelines, giving
 requesters a single source of truth.
 
@@ -203,7 +203,7 @@ processing is acceptable.
 **Problem:** nurses need a faster, reliable way to find trusted policies, procedures, and practice
 guidance that today are spread across The Source, C360, Elsevier, and related repositories.
 
-Architecturally this is a classic, almost textbook **Pattern B** RAG / Agent Bricks Knowledge Assistant
+Architecturally this is a classic, almost textbook **Pattern B** RAG / Genie Agent (Analyze Files in Volumes) or custom RAG agent
 with strict source-grounding and mandatory citations - approved nursing content is parsed, chunked,
 embedded into Vector Search, and answered over by a KA that always shows its sources. **Unity Catalog**
 governs which repositories a given user (bedside nurse, charge nurse, manager, educator) can retrieve
